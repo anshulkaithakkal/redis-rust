@@ -2,6 +2,7 @@
 use std::net::TcpListener;
 use std::io::Write;
 use std::io::Read;
+use std::thread;
 
 fn main() {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -13,7 +14,8 @@ fn main() {
     for stream in listener.incoming() {
         match stream {
             Ok(mut stream) => {
-                let mut buffer = [0; 512];
+                thread::spawn(move || {
+                    let mut buffer = [0; 512];
                 loop {
                     let bytes_read = stream.read(&mut buffer).unwrap();
                     if bytes_read == 0 {
@@ -21,6 +23,8 @@ fn main() {
                     }
                     stream.write_all(b"+PONG\r\n").unwrap();
                 }
+                });
+                
             }
             Err(e) => {
                 println!("error: {}", e);
